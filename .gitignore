@@ -12,6 +12,7 @@
 !.travis.yml
 !settings.gradle
 !checkstyle.xml
+/src
 !.codeclimate.yml
 
 # ...even if they are in subdirectories
