@@ -72,7 +72,7 @@ public class MyDAO implements DAO {
 
     @NotNull
     @Override
-    public Iterator<Record> iterator(@NotNull final ByteBuffer from){
+    public Iterator<Record> iterator(@NotNull final ByteBuffer from) {
         final List<Iterator<Cell>> iterators = new ArrayList<>(ssTables.size() + 1);
         iterators.add(memTable.iterator(from));
         ssTables.descendingMap().values().forEach(t -> {

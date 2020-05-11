@@ -18,7 +18,7 @@ final class MemTable implements Table {
 
     @NotNull
     @Override
-    public Iterator<Cell> iterator(@NotNull final ByteBuffer from){
+    public Iterator<Cell> iterator(@NotNull final ByteBuffer from) {
         return map.tailMap(from)
                 .entrySet()
                 .stream()
@@ -27,7 +27,7 @@ final class MemTable implements Table {
     }
 
     @Override
-    public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value){
+    public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) {
         if (map.containsKey(key)) {
             sizeInBytes += value.remaining() + Long.BYTES;
         } else {
@@ -37,7 +37,7 @@ final class MemTable implements Table {
     }
 
     @Override
-    public void remove(@NotNull final ByteBuffer key){
+    public void remove(@NotNull final ByteBuffer key) {
         final Value previous = map.put(key.duplicate(), new Value(System.currentTimeMillis()));
         if (previous == null) {
             sizeInBytes += key.remaining();
@@ -47,7 +47,7 @@ final class MemTable implements Table {
     }
 
     @Override
-    public void close(){
+    public void close() {
         map.clear();
     }
 
