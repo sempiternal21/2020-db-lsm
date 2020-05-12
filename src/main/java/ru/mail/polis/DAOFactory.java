@@ -27,7 +27,7 @@ import java.io.File;
  * @author Vadim Tsesko
  */
 public final class DAOFactory {
-    static final long MAX_HEAP = 2063597568;
+    static final long MAX_HEAP = 128 * 1024 * 1024;
 
     private DAOFactory() {
         // Not instantiatable
@@ -54,6 +54,6 @@ public final class DAOFactory {
         }
 
         // TODO: Implement me
-        return new MyDAO(data, MAX_HEAP / 1024);
+        return new MyDAO(data, MAX_HEAP / 32);
     }
 }
