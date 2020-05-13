@@ -51,7 +51,7 @@ final class SSTable implements Table {
         final ByteBuffer timestamp = ByteBuffer.allocate(Long.BYTES);
         channel.read(timestamp, offset);
         offset += Long.BYTES;
-        long bufferOffset = timestamp.rewind().getLong();
+        final long bufferOffset = timestamp.rewind().getLong();
         if (bufferOffset < 0) {
             return new Cell(key, new Value(-bufferOffset));
         } else {

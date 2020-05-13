@@ -38,7 +38,4 @@ final class Value implements Comparable<Value> {
     long getTimestamp() {
         return timestamp;
     }
-    public boolean isRemoved() {
-        return data == null;
-    }
 }

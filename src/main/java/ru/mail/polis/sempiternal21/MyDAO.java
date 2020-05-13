@@ -8,7 +8,6 @@ import ru.mail.polis.Record;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -18,10 +17,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 
 public class MyDAO implements DAO {
     private static final String SUFFIX = ".dat";
     private static final String TEMP = ".tmp";
+    private static Logger log = Logger.getLogger(MyDAO.class.getName());
 
     private final File storage;
     private final long flushThreshold;
@@ -59,6 +60,7 @@ public class MyDAO implements DAO {
                                 try {
                                     ssTables.put(gen, new SSTable(f));
                                 } catch (IOException e) {
+                                    log.info("String 63");
                                 }
                                 if (gen > version) {
                                     version = gen;
@@ -78,6 +80,7 @@ public class MyDAO implements DAO {
             try {
                 iterators.add(t.iterator(from));
             } catch (IOException e) {
+                log.info("String 83");
             }
         });
         final Iterator<Cell> mergedIterator = Iterators.mergeSorted(iterators, Cell.COMPARATOR);
