@@ -55,6 +55,6 @@ public final class DAOFactory {
         }
 
         // TODO: Implement me
-        return new  MyDAO(data,MAX_HEAP / 32);
+        return new MyDAO(data, MAX_HEAP / 32);
     }
 }
