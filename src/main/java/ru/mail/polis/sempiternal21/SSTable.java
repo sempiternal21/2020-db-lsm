@@ -10,6 +10,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 final class SSTable implements Table {
 
@@ -20,9 +21,8 @@ final class SSTable implements Table {
     SSTable(@NotNull final File file) throws IOException {
         channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
         final long sizeFile = channel.size();
-        channel.position(sizeFile - Integer.BYTES);
         final ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
-        channel.read(buf);
+        channel.read(buf, sizeFile - Integer.BYTES);
         numRows = buf.rewind().getInt();
         sizeData = sizeFile - (numRows + 1) * Integer.BYTES;
     }
@@ -51,8 +51,9 @@ final class SSTable implements Table {
         final ByteBuffer timestamp = ByteBuffer.allocate(Long.BYTES);
         channel.read(timestamp, offset);
         offset += Long.BYTES;
-        if (timestamp.rewind().getLong() < 0) {
-            return new Cell(key, new Value(-timestamp.rewind().getLong()));
+        long bufferOffset = timestamp.rewind().getLong();
+        if (bufferOffset < 0) {
+            return new Cell(key, new Value(-bufferOffset));
         } else {
             final ByteBuffer valueSize = ByteBuffer.allocate(Integer.BYTES);
             channel.read(valueSize, offset);
@@ -125,7 +126,7 @@ final class SSTable implements Table {
      */
     static void serialize(final File file, final Iterator<Cell> iterator) throws IOException {
         try (FileChannel fileChannel = new FileOutputStream(file).getChannel()) {
-            final ArrayList<Integer> offsets = new ArrayList<>();
+            final List<Integer> offsets = new ArrayList<>();
             int offset = 0;
             while (iterator.hasNext()) {
                 offsets.add(offset);
@@ -133,7 +134,7 @@ final class SSTable implements Table {
                 final ByteBuffer key = buf.getKey();
                 final Value value = buf.getValue();
                 final int keySize = key.remaining();
-                offset += Integer.BYTES + keySize + Long.BYTES;
+
                 fileChannel.write(ByteBuffer.allocate(Integer.BYTES)
                         .putInt(keySize)
                         .rewind());
@@ -154,13 +155,15 @@ final class SSTable implements Table {
                             .rewind());
                     fileChannel.write(data);
                 }
+                offset += Integer.BYTES + keySize + Long.BYTES;
             }
-            final int offsetSize = offsets.size();
+
             for (final Integer off : offsets) {
                 fileChannel.write(ByteBuffer.allocate(Integer.BYTES)
                         .putInt(off)
                         .rewind());
             }
+            final int offsetSize = offsets.size();
             fileChannel.write(ByteBuffer.allocate(Integer.BYTES)
                     .putInt(offsetSize)
                     .rewind());

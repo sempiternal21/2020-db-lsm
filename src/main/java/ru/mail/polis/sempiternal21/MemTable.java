@@ -28,12 +28,13 @@ final class MemTable implements Table {
 
     @Override
     public void upsert(@NotNull final ByteBuffer key, @NotNull final ByteBuffer value) {
-        if (map.containsKey(key)) {
-            sizeInBytes += value.remaining() + Long.BYTES;
-        } else {
-            sizeInBytes += value.remaining() + key.remaining() + Long.BYTES;
+        final Value previous = map.put(key.duplicate(), new Value(System.currentTimeMillis(), value.duplicate()));
+        sizeInBytes += value.remaining();
+        if (previous == null) {
+            sizeInBytes += key.remaining() + Long.BYTES;
+        } else if (!previous.isTombstone()) {
+            sizeInBytes -= previous.getData().remaining();
         }
-        map.put(key.duplicate(), new Value(System.currentTimeMillis(), value.duplicate()));
     }
 
     @Override

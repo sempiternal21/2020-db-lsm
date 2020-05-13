@@ -39,7 +39,7 @@ public class MyDAO implements DAO {
      * @param storage        - SSTable storage directory
      * @param flushThreshold - max size of MemTable
      */
-    public MyDAO(@NotNull final File storage, final long flushThreshold) {
+    public MyDAO(@NotNull final File storage, final long flushThreshold) throws IOException {
         assert flushThreshold > 0L;
         this.flushThreshold = flushThreshold;
         this.storage = storage;
@@ -59,7 +59,6 @@ public class MyDAO implements DAO {
                                 try {
                                     ssTables.put(gen, new SSTable(f));
                                 } catch (IOException e) {
-                                    throw new UncheckedIOException(e);
                                 }
                                 if (gen > version) {
                                     version = gen;
@@ -72,14 +71,13 @@ public class MyDAO implements DAO {
 
     @NotNull
     @Override
-    public Iterator<Record> iterator(@NotNull final ByteBuffer from) {
+    public Iterator<Record> iterator(@NotNull final ByteBuffer from) throws IOException {
         final List<Iterator<Cell>> iterators = new ArrayList<>(ssTables.size() + 1);
         iterators.add(memTable.iterator(from));
         ssTables.descendingMap().values().forEach(t -> {
             try {
                 iterators.add(t.iterator(from));
             } catch (IOException e) {
-                throw new RuntimeException("Error", e);
             }
         });
         final Iterator<Cell> mergedIterator = Iterators.mergeSorted(iterators, Cell.COMPARATOR);
