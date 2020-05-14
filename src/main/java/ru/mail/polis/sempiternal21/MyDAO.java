@@ -60,7 +60,7 @@ public class MyDAO implements DAO {
                                 try {
                                     ssTables.put(gen, new SSTable(f));
                                 } catch (IOException e) {
-                                    log.info("String 63");
+                                    log.info("IOException put");
                                 }
                                 if (gen > version) {
                                     version = gen;
@@ -80,7 +80,7 @@ public class MyDAO implements DAO {
             try {
                 iterators.add(t.iterator(from));
             } catch (IOException e) {
-                log.info("String 83");
+                log.info("IOException iterator");
             }
         });
         final Iterator<Cell> mergedIterator = Iterators.mergeSorted(iterators, Cell.COMPARATOR);
