@@ -25,7 +25,7 @@ final class SSTable implements Table {
         sizeData = sizeFile - (numRows + 1) * Integer.BYTES;
     }
 
-    public static int getInt(FileChannel channel, long offset) throws IOException {
+    public static int getInt(final FileChannel channel, final long offset) throws IOException {
         final ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
         channel.read(buf, offset);
         return buf.rewind().getInt();
