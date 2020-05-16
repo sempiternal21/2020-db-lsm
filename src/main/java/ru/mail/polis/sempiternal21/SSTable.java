@@ -21,10 +21,14 @@ final class SSTable implements Table {
     SSTable(@NotNull final File file) throws IOException {
         channel = FileChannel.open(file.toPath(), StandardOpenOption.READ);
         final long sizeFile = channel.size();
-        final ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
-        channel.read(buf, sizeFile - Integer.BYTES);
-        numRows = buf.rewind().getInt();
+        numRows = getInt(channel, sizeFile - Integer.BYTES);
         sizeData = sizeFile - (numRows + 1) * Integer.BYTES;
+    }
+
+    public static int getInt(FileChannel channel, long offset) throws IOException {
+        final ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
+        channel.read(buf, offset);
+        return buf.rewind().getInt();
     }
 
     private int getOffset(final int numRow) throws IOException {
@@ -36,9 +40,7 @@ final class SSTable implements Table {
     @NotNull
     private ByteBuffer key(final int row) throws IOException {
         final int offset = getOffset(row);
-        final ByteBuffer keySize = ByteBuffer.allocate(Integer.BYTES);
-        channel.read(keySize, offset);
-        final ByteBuffer key = ByteBuffer.allocate(keySize.rewind().getInt());
+        final ByteBuffer key = ByteBuffer.allocate(getInt(channel, offset));
         channel.read(key, offset + Integer.BYTES);
         return key.rewind();
     }
@@ -55,9 +57,7 @@ final class SSTable implements Table {
         if (bufferOffset < 0) {
             return new Cell(key, new Value(-bufferOffset));
         } else {
-            final ByteBuffer valueSize = ByteBuffer.allocate(Integer.BYTES);
-            channel.read(valueSize, offset);
-            final ByteBuffer value = ByteBuffer.allocate(valueSize.rewind().getInt());
+            final ByteBuffer value = ByteBuffer.allocate(getInt(channel, offset));
             offset += Integer.BYTES;
             channel.read(value, offset);
             return new Cell(key, new Value(timestamp.rewind().getLong(), value.rewind()));

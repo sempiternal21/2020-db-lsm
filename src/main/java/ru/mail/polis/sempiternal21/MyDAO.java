@@ -2,6 +2,8 @@ package ru.mail.polis.sempiternal21;
 
 import com.google.common.collect.Iterators;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.mail.polis.DAO;
 import ru.mail.polis.Iters;
 import ru.mail.polis.Record;
@@ -17,12 +19,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-import java.util.logging.Logger;
 
 public class MyDAO implements DAO {
     private static final String SUFFIX = ".dat";
     private static final String TEMP = ".tmp";
-    private static Logger log = Logger.getLogger(MyDAO.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(MyDAO.class);
 
     private final File storage;
     private final long flushThreshold;
@@ -60,7 +61,7 @@ public class MyDAO implements DAO {
                                 try {
                                     ssTables.put(gen, new SSTable(f));
                                 } catch (IOException e) {
-                                    log.info("IOException put");
+                                    logger.error("Create SStable error", e);
                                 }
                                 if (gen > version) {
                                     version = gen;
@@ -80,7 +81,7 @@ public class MyDAO implements DAO {
             try {
                 iterators.add(t.iterator(from));
             } catch (IOException e) {
-                log.info("IOException iterator");
+                logger.error("Add in iterator error",e);
             }
         });
         final Iterator<Cell> mergedIterator = Iterators.mergeSorted(iterators, Cell.COMPARATOR);
