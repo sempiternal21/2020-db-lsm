@@ -13,6 +13,5 @@
 !settings.gradle
 !checkstyle.xml
 !.codeclimate.yml
-/src
 # ...even if they are in subdirectories
 !*/

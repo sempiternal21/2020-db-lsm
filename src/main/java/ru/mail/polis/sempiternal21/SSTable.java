@@ -118,13 +118,7 @@ final class SSTable implements Table {
         channel.close();
     }
 
-    /**
-     * Structure of table.
-     * keySize(Integer)|key|timestamp(Long)|tombstone(Byte)||valueSize(Integer)|value||
-     * offsets
-     * n
-     */
-    static void serialize(final File file, final Iterator<Cell> iterator) throws IOException {
+    static void serialize(final File file, @NotNull final Iterator<Cell> iterator) throws IOException {
         try (FileChannel fileChannel = new FileOutputStream(file).getChannel()) {
             final List<Integer> offsets = new ArrayList<>();
             int offset = 0;
