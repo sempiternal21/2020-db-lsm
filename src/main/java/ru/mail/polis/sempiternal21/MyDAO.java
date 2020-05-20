@@ -130,8 +130,7 @@ public class MyDAO implements DAO {
             flush();
         }
     }
-
-
+    
     private void flush() throws IOException {
         final File file = new File(storage, version + TEMP);
         SSTable.serialize(file, memTable.iterator(ByteBuffer.allocate(0)));
